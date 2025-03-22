@@ -6,13 +6,12 @@ import storage from '@react-native-firebase/storage';
 
 // Configuração do Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyBCVMGOUMX_XYZ123456789ABCDEFGHIJK",
-  authDomain: "smartlist-app.firebaseapp.com",
-  projectId: "smartlist-app",
-  storageBucket: "smartlist-app.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef1234567890abcdef",
-  measurementId: "G-ABCDEFGHIJ"
+  apiKey: "AIzaSyCSnMv6R3ektOYdJ1PjtE1AwuKfxphDfYw",
+  authDomain: "smartlistapp-5b840.firebaseapp.com",
+  projectId: "smartlistapp-5b840",
+  storageBucket: "smartlistapp-5b840.firebasestorage.app",
+  messagingSenderId: "352783072850",
+  appId: "1:352783072850:web:4a95f71fffec45d2c6298b"
 };
 
 /**

@@ -542,3 +542,310 @@ export const ListsProvider = ({ children }) => {
                       category = ?, 
                       is_checked = ?, 
                       note = ?,
+                      product_id = ?, 
+                      updated_at = ?, 
+                      is_synced = 1, 
+                      is_deleted = ?
+                    WHERE id = ?`,
+                  [
+                    item.name,
+                    item.quantity,
+                    item.unit || 'un',
+                    item.price,
+                    item.category,
+                    item.isChecked ? 1 : 0,
+                    item.note || '',
+                    item.productId,
+                    item.updatedAt.getTime(),
+                    1, // já está sincronizado
+                    item.isDeleted ? 1 : 0,
+                    localItemId
+                  ],
+                  resolveUpdate,
+                  (_, error) => rejectUpdate(error)
+                );
+              });
+            } else {
+              // Inserir novo item
+              await new Promise((resolveInsert, rejectInsert) => {
+                tx.executeSql(
+                  `INSERT INTO list_items (
+                    id, list_id, name, quantity, unit, price, category, is_checked, note, product_id, created_at, updated_at, is_synced, is_deleted
+                  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                  [
+                    localItemId,
+                    localId, // ID da lista
+                    item.name,
+                    item.quantity,
+                    item.unit || 'un',
+                    item.price,
+                    item.category,
+                    item.isChecked ? 1 : 0,
+                    item.note || '',
+                    item.productId,
+                    item.createdAt.getTime(),
+                    item.updatedAt.getTime(),
+                    1, // já está sincronizado
+                    item.isDeleted ? 1 : 0
+                  ],
+                  resolveInsert,
+                  (_, error) => rejectInsert(error)
+                );
+              });
+            }
+          }
+        }
+        
+        await processLists();
+        resolve();
+      });
+    });
+  };
+
+  // Obter lista por ID
+  const getListById = async (listId) => {
+    return new Promise((resolve, reject) => {
+      try {
+        db.transaction(tx => {
+          tx.executeSql(
+            `SELECT * FROM lists WHERE id = ? AND is_deleted = 0`,
+            [listId],
+            (_, { rows }) => {
+              if (rows.length === 0) {
+                resolve(null);
+                return;
+              }
+              
+              const list = rows.item(0);
+              
+              // Buscar itens da lista
+              tx.executeSql(
+                `SELECT * FROM list_items WHERE list_id = ? AND is_deleted = 0`,
+                [listId],
+                (_, { rows: itemRows }) => {
+                  const listWithItems = {
+                    ...list,
+                    items: itemRows._array
+                  };
+                  
+                  resolve(listWithItems);
+                },
+                (_, error) => {
+                  console.error('Erro ao buscar itens da lista:', error);
+                  reject(error);
+                }
+              );
+            },
+            (_, error) => {
+              console.error('Erro ao buscar lista por ID:', error);
+              reject(error);
+            }
+          );
+        });
+      } catch (error) {
+        console.error('Erro ao obter lista por ID:', error);
+        reject(error);
+      }
+    });
+  };
+
+  // Criar ou atualizar lista
+  const updateList = async (listData) => {
+    return new Promise((resolve, reject) => {
+      try {
+        const now = Date.now();
+        const isNew = !listData.id;
+        const listId = isNew ? `local_${Math.random().toString(36).substring(2, 15)}` : listData.id;
+        
+        db.transaction(tx => {
+          if (isNew) {
+            // Criar nova lista
+            tx.executeSql(
+              `INSERT INTO lists (
+                id, name, description, created_at, updated_at, is_synced, user_id, is_deleted
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+              [
+                listId,
+                listData.name,
+                listData.description || '',
+                listData.created_at || now,
+                listData.updated_at || now,
+                0, // não sincronizada
+                user?.uid || null,
+                0 // não excluída
+              ],
+              async (_, result) => {
+                // Buscar a lista recém-criada
+                const newList = await getListById(listId);
+                resolve({ success: true, list: newList });
+              },
+              (_, error) => {
+                console.error('Erro ao criar lista:', error);
+                reject({ success: false, error: error.message });
+              }
+            );
+          } else {
+            // Atualizar lista existente
+            tx.executeSql(
+              `UPDATE lists SET 
+                name = ?, 
+                description = ?, 
+                updated_at = ?, 
+                is_synced = ?
+              WHERE id = ?`,
+              [
+                listData.name,
+                listData.description || '',
+                listData.updated_at || now,
+                0, // marcar para sincronização
+                listId
+              ],
+              async (_, result) => {
+                // Buscar a lista atualizada
+                const updatedList = await getListById(listId);
+                resolve({ success: true, list: updatedList });
+              },
+              (_, error) => {
+                console.error('Erro ao atualizar lista:', error);
+                reject({ success: false, error: error.message });
+              }
+            );
+          }
+        });
+      } catch (error) {
+        console.error('Erro ao salvar lista:', error);
+        reject({ success: false, error: error.message });
+      }
+    });
+  };
+
+  // Excluir lista (exclusão lógica)
+  const deleteList = async (listId) => {
+    return new Promise((resolve, reject) => {
+      try {
+        const now = Date.now();
+        
+        db.transaction(tx => {
+          // Marcar lista como excluída
+          tx.executeSql(
+            `UPDATE lists SET is_deleted = 1, updated_at = ?, is_synced = 0 WHERE id = ?`,
+            [now, listId],
+            (_, result) => {
+              if (result.rowsAffected > 0) {
+                // Atualizar estado local
+                setLists(prevLists => prevLists.filter(list => list.id !== listId));
+                resolve({ success: true });
+              } else {
+                reject({ success: false, error: 'Lista não encontrada' });
+              }
+            },
+            (_, error) => {
+              console.error('Erro ao excluir lista:', error);
+              reject({ success: false, error: error.message });
+            }
+          );
+        });
+      } catch (error) {
+        console.error('Erro ao excluir lista:', error);
+        reject({ success: false, error: error.message });
+      }
+    });
+  };
+
+  // Adicionar item à lista
+  const addItemToList = async (listId, itemData) => {
+    return new Promise((resolve, reject) => {
+      try {
+        const now = Date.now();
+        const itemId = `local_${Math.random().toString(36).substring(2, 15)}`;
+        
+        db.transaction(tx => {
+          // Inserir novo item
+          tx.executeSql(
+            `INSERT INTO list_items (
+              id, list_id, name, quantity, unit, price, category, is_checked, note, product_id, created_at, updated_at, is_synced, is_deleted
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              itemId,
+              listId,
+              itemData.name,
+              itemData.quantity || 1,
+              itemData.unit || 'un',
+              itemData.price || null,
+              itemData.category || null,
+              itemData.checked ? 1 : 0,
+              itemData.note || '',
+              itemData.productId || null,
+              itemData.created_at || now,
+              itemData.updated_at || now,
+              0, // não sincronizado
+              0 // não excluído
+            ],
+            async (_, result) => {
+              // Atualizar timestamp da lista
+              await new Promise((resolveUpdate, rejectUpdate) => {
+                tx.executeSql(
+                  `UPDATE lists SET updated_at = ?, is_synced = 0 WHERE id = ?`,
+                  [now, listId],
+                  resolveUpdate,
+                  (_, error) => rejectUpdate(error)
+                );
+              });
+              
+              // Buscar a lista atualizada
+              const updatedList = await getListById(listId);
+              resolve({ success: true, list: updatedList });
+            },
+            (_, error) => {
+              console.error('Erro ao adicionar item:', error);
+              reject({ success: false, error: error.message });
+            }
+          );
+        });
+      } catch (error) {
+        console.error('Erro ao adicionar item:', error);
+        reject({ success: false, error: error.message });
+      }
+    });
+  };
+
+  // Atualizar item da lista
+  const updateListItem = async (listId, itemData) => {
+    return new Promise((resolve, reject) => {
+      try {
+        const now = Date.now();
+        
+        db.transaction(tx => {
+          // Atualizar item
+          tx.executeSql(
+            `UPDATE list_items SET 
+              name = ?, 
+              quantity = ?, 
+              unit = ?, 
+              price = ?, 
+              category = ?, 
+              is_checked = ?, 
+              note = ?, 
+              product_id = ?, 
+              updated_at = ?, 
+              is_synced = ?
+            WHERE id = ? AND list_id = ?`,
+            [
+              itemData.name,
+              itemData.quantity || 1,
+              itemData.unit || 'un',
+              itemData.price || null,
+              itemData.category || null,
+              itemData.checked ? 1 : 0,
+              itemData.note || '',
+              itemData.productId || null,
+              itemData.updated_at || now,
+              0, // não sincronizado
+              itemData.id,
+              listId
+            ],
+            async (_, result) => {
+              if (result.rowsAffected > 0) {
+                // Atualizar timestamp da lista
+                await new Promise((resolveUpdate, rejectUpdate) => {
+                  tx.executeSql(

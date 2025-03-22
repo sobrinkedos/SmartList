@@ -14,6 +14,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { ProductsProvider } from './contexts/ProductsContext';
 import { ListsProvider } from './contexts/ListsContext';
 import { StoresProvider } from './contexts/StoresContext';
+import { SyncProvider } from './contexts/SyncContext';
 
 // Serviços
 import { initializeFirebase } from './services/firebase';
@@ -78,12 +79,18 @@ export default function App() {
       <PaperProvider theme={theme}>
         <ThemeProvider initialTheme={isDarkMode ? 'dark' : 'light'}>
           <AuthProvider>
-            <ListsProvider>
-              <NavigationContainer theme={theme}>
-                <MainNavigator />
-                <StatusBar style={isDarkMode ? 'light' : 'dark'} />
-              </NavigationContainer>
-            </ListsProvider>
+            <SyncProvider>
+              <ProductsProvider>
+                <StoresProvider>
+                  <ListsProvider>
+                    <NavigationContainer theme={theme}>
+                      <MainNavigator />
+                      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+                    </NavigationContainer>
+                  </ListsProvider>
+                </StoresProvider>
+              </ProductsProvider>
+            </SyncProvider>
           </AuthProvider>
         </ThemeProvider>
       </PaperProvider>
