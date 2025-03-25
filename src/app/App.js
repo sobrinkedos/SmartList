@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Provider as PaperProvider, DefaultTheme, DarkTheme } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+// Removida importação do Supabase
 
 // Navegação
 import MainNavigator from './navigation/MainNavigator';
@@ -33,6 +34,8 @@ export default function App() {
         
         // Inicializar banco de dados local
         await initializeDatabase();
+        
+        // Supabase foi removido, usando apenas Firebase
         
         // Carregar preferências do usuário
         const themePreference = await AsyncStorage.getItem('theme');

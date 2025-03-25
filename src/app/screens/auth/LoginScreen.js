@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, KeyboardAv
 import { TextInput, Button, Snackbar } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { FirebaseAuthService } from '../../services/firebaseAuthService';
 
 const LoginScreen = ({ navigation }) => {
   const { signIn, loading, error } = useAuth();
@@ -98,7 +99,19 @@ const LoginScreen = ({ navigation }) => {
           <Button 
             mode="outlined" 
             icon="google" 
-            onPress={() => {}} 
+            onPress={async () => {
+              try {
+                setSnackbarMessage('Iniciando login com Google...');
+                setSnackbarVisible(true);
+                const result = await FirebaseAuthService.loginWithGoogle();
+                if (!result.success) {
+                  throw new Error(result.error?.message || 'Erro ao fazer login com Google');
+                }
+              } catch (error) {
+                setSnackbarMessage(error.message);
+                setSnackbarVisible(true);
+              }
+            }} 
             style={[styles.socialButton, { borderColor: '#DB4437' }]}
             labelStyle={{ color: '#DB4437' }}
           >
@@ -108,7 +121,19 @@ const LoginScreen = ({ navigation }) => {
           <Button 
             mode="outlined" 
             icon="facebook" 
-            onPress={() => {}} 
+            onPress={async () => {
+              try {
+                setSnackbarMessage('Iniciando login com Facebook...');
+                setSnackbarVisible(true);
+                const result = await FirebaseAuthService.loginWithFacebook();
+                if (!result.success) {
+                  throw new Error(result.error?.message || 'Erro ao fazer login com Facebook');
+                }
+              } catch (error) {
+                setSnackbarMessage(error.message);
+                setSnackbarVisible(true);
+              }
+            }} 
             style={[styles.socialButton, { borderColor: '#4267B2' }]}
             labelStyle={{ color: '#4267B2' }}
           >

@@ -123,3 +123,38 @@ const PriceAnalysisScreen = ({ navigation }) => {
   
   // Filtrar dados do histórico de preços com base no intervalo de tempo selecionado
   const getFilteredPriceHistory = () => {
+    if (!selectedProduct || !selectedProduct.priceHistory || !selectedProduct.priceHistory.length) {
+      return [];
+    }
+
+    const now = new Date();
+    let filterDate = new Date();
+
+    switch (timeRange) {
+      case '1m':
+        filterDate.setMonth(now.getMonth() - 1);
+        break;
+      case '3m':
+        filterDate.setMonth(now.getMonth() - 3);
+        break;
+      case '6m':
+        filterDate.setMonth(now.getMonth() - 6);
+        break;
+      case '1y':
+        filterDate.setFullYear(now.getFullYear() - 1);
+        break;
+      default:
+        return selectedProduct.priceHistory;
+    }
+
+    return selectedProduct.priceHistory.filter(item => new Date(item.date) >= filterDate);
+  };
+  
+  return (
+    <View style={styles.container}>
+      {/* Resto do componente */}
+    </View>
+  );
+};
+
+export default PriceAnalysisScreen;

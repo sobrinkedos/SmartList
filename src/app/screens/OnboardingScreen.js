@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity, FlatList } from 'react-native';
-import { Button } from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme } from '../contexts/ThemeContext';
+import { View, StyleSheet, Image, Dimensions, FlatList } from 'react-native';
+import { Text, Button, useTheme } from 'react-native-paper';
+import AsyncStorage from '../services/async-storage-mock';
+import { TouchableOpacity } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 

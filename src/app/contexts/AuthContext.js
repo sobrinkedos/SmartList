@@ -1,6 +1,7 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import auth from '@react-native-firebase/auth';
+import { getAuth } from '../services/firebase';
+import { FirebaseAuthService } from '../services/firebaseAuthService';
 import * as LocalAuthentication from 'expo-local-authentication';
 
 const AuthContext = createContext({});
@@ -29,20 +30,22 @@ export const AuthProvider = ({ children }) => {
 
   // Monitorar estado de autenticação do Firebase
   useEffect(() => {
-    const unsubscribe = auth().onAuthStateChanged(async (firebaseUser) => {
+    const checkAuthState = async () => {
       try {
-        if (firebaseUser) {
-          // Usuário autenticado
-          const userData = {
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName,
-            photoURL: firebaseUser.photoURL,
-          };
+        setLoading(true);
+        
+        // Verificar se há uma sessão ativa no Firebase
+        const { success, isAuthenticated } = await FirebaseAuthService.isAuthenticated();
+        
+        if (success && isAuthenticated) {
+          // Obter dados do usuário atual
+          const { success, user: userData } = await FirebaseAuthService.getCurrentUser();
           
-          // Salvar dados do usuário localmente
-          await AsyncStorage.setItem('user', JSON.stringify(userData));
-          setUser(userData);
+          if (success && userData) {
+            // Salvar dados do usuário localmente
+            await AsyncStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
+          }
         } else {
           // Verificar se há dados salvos localmente
           const savedUser = await AsyncStorage.getItem('user');
@@ -65,9 +68,27 @@ export const AuthProvider = ({ children }) => {
       } finally {
         setLoading(false);
       }
+    };
+
+    checkAuthState();
+    
+    // Configurar listener para mudanças de autenticação
+    const unsubscribe = getAuth().onAuthStateChanged(async (firebaseUser) => {
+      if (firebaseUser) {
+        const { success, user: userData } = await FirebaseAuthService.getCurrentUser();
+        if (success && userData) {
+          await AsyncStorage.setItem('user', JSON.stringify(userData));
+          setUser(userData);
+        }
+      } else {
+        setUser(null);
+        await AsyncStorage.removeItem('user');
+      }
     });
 
-    return unsubscribe;
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [useBiometric]);
 
   // Autenticação com biometria
@@ -90,7 +111,12 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      await auth().signInWithEmailAndPassword(email, password);
+      const result = await FirebaseAuthService.loginUser(email, password);
+      
+      if (!result.success) {
+        throw new Error(result.error?.message || 'Erro ao fazer login');
+      }
+      
       return { success: true };
     } catch (err) {
       setError(err.message);
@@ -106,11 +132,10 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
-      const { user } = await auth().createUserWithEmailAndPassword(email, password);
+      const result = await FirebaseAuthService.registerUser(email, password, displayName);
       
-      // Atualizar perfil com nome de exibição
-      if (displayName) {
-        await user.updateProfile({ displayName });
+      if (!result.success) {
+        throw new Error(result.error?.message || 'Erro ao criar conta');
       }
       
       return { success: true };
@@ -126,8 +151,12 @@ export const AuthProvider = ({ children }) => {
   const signOut = async () => {
     try {
       setLoading(true);
-      await auth().signOut();
-      await AsyncStorage.removeItem('user');
+      const result = await FirebaseAuthService.logoutUser();
+      
+      if (!result.success) {
+        throw new Error(result.error?.message || 'Erro ao fazer logout');
+      }
+      
       setUser(null);
       return { success: true };
     } catch (err) {
@@ -150,6 +179,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Recuperação de senha
+  const resetPassword = async (email) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const result = await FirebaseAuthService.resetPassword(email);
+      
+      if (!result.success) {
+        throw new Error(result.error?.message || 'Erro ao enviar email de recuperação');
+      }
+      
+      return { success: true };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -162,6 +212,7 @@ export const AuthProvider = ({ children }) => {
         signIn,
         signUp,
         signOut,
+        resetPassword,
         updateBiometricPreference,
         authenticateWithBiometrics,
       }}

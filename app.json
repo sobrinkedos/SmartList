@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "SmartList",
+    "slug": "smartlist",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/images/logo.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./src/assets/images/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.smartlist.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/images/logo.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.smartlist.app"
+    },
+    "web": {
+      "favicon": "./src/assets/images/logo.png"
+    },
+    "plugins": [
+      "react-native-reanimated/plugin"
+    ]
+  }
+}

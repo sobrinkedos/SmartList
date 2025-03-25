@@ -1,8 +1,10 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../services/async-storage-mock';
 import { useAuth } from './AuthContext';
 import * as SQLite from 'expo-sqlite';
-import firestore from '@react-native-firebase/firestore';
+// import firestore from '@react-native-firebase/firestore';
+import { getFirestore } from '../services/firebase';
 import { v4 as uuidv4 } from 'uuid';
 import { StoreService } from '../services/storeService';
 
@@ -354,7 +356,7 @@ export const StoresProvider = ({ children }) => {
       }
 
       // Sincronizar com o Firestore
-      const db = firestore();
+      const db = getFirestore();
       const batch = db.batch();
       
       for (const store of unsyncedStores) {
@@ -362,17 +364,16 @@ export const StoresProvider = ({ children }) => {
         
         if (store.is_deleted) {
           // Marcar como excluído no Firestore
-          batch.update(storeRef, { isDeleted: true, updatedAt: firestore.FieldValue.serverTimestamp() });
+          batch.update(storeRef, { isDeleted: true, updatedAt: new Date().getTime() });
         } else {
           // Adicionar ou atualizar no Firestore
           batch.set(storeRef, {
             name: store.name,
-            address: store.address,
             latitude: store.latitude,
             longitude: store.longitude,
             userId: user.uid,
-            createdAt: firestore.Timestamp.fromMillis(store.created_at),
-            updatedAt: firestore.FieldValue.serverTimestamp(),
+            createdAt: new Date(store.created_at).getTime(),
+            updatedAt: new Date().getTime(),
             isDeleted: false
           }, { merge: true });
         }

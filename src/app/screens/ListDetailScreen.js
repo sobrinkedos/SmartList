@@ -387,4 +387,147 @@ const ListDetailScreen = ({ route, navigation }) => {
           
           {!isNew && (
             <FAB
-              style={[styles.fab, isDarkMode &&
+              style={[styles.fab, isDarkMode && styles.fabDark]}
+              icon="plus"
+              onPress={() => setShowAddDialog(true)}
+            />
+          )}
+        </>
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  containerDark: {
+    backgroundColor: '#333',
+  },
+  headerContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  listNameInput: {
+    marginBottom: 16,
+  },
+  inputDark: {
+    backgroundColor: '#444',
+    color: '#fff',
+  },
+  saveButton: {
+    padding: 8,
+  },
+  summaryContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  summaryInfo: {
+    flex: 1,
+  },
+  summaryText: {
+    fontSize: 16,
+    color: '#666',
+  },
+  textLightSecondary: {
+    color: '#ccc',
+  },
+  summaryPrice: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0066cc',
+  },
+  textLight: {
+    color: '#fff',
+  },
+  summaryActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  menu: {
+    marginTop: 16,
+  },
+  menuDark: {
+    backgroundColor: '#444',
+  },
+  listContainer: {
+    padding: 16,
+  },
+  itemCard: {
+    marginBottom: 16,
+  },
+  cardDark: {
+    backgroundColor: '#444',
+  },
+  itemContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  itemLeftSection: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  itemDetails: {
+    marginLeft: 16,
+  },
+  itemName: {
+    fontSize: 16,
+    color: '#666',
+  },
+  checkedItem: {
+    textDecorationLine: 'line-through',
+    color: '#999',
+  },
+  itemInfo: {
+    fontSize: 14,
+    color: '#999',
+  },
+  itemActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    backgroundColor: '#0066cc',
+  },
+  fabDark: {
+    backgroundColor: '#0077cc',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 16,
+  },
+  addButton: {
+    marginTop: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#666',
+  },
+});
+
+export default ListDetailScreen;

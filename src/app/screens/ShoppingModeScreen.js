@@ -366,4 +366,93 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop:
+    paddingTop: 10,
+  },
+  summaryLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  summaryValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  listContainer: {
+    padding: 16,
+  },
+  itemCard: {
+    marginBottom: 8,
+  },
+  cardDark: {
+    backgroundColor: '#333',
+  },
+  checkedItemCard: {
+    opacity: 0.5,
+  },
+  itemContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  itemLeftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  itemDetails: {
+    marginLeft: 8,
+  },
+  itemName: {
+    fontSize: 16,
+    color: '#333',
+  },
+  textLight: {
+    color: '#fff',
+  },
+  checkedItem: {
+    textDecorationLine: 'line-through',
+    color: '#666',
+  },
+  itemInfo: {
+    fontSize: 14,
+    color: '#666',
+  },
+  textLightSecondary: {
+    color: '#aaa',
+  },
+  priceButton: {
+    padding: 8,
+    borderRadius: 4,
+    backgroundColor: '#f0f0f0',
+  },
+  totalPrice: {
+    fontSize: 16,
+    color: '#333',
+  },
+  dialogDark: {
+    backgroundColor: '#1e1e1e',
+  },
+  dialogText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  priceInput: {
+    height: 40,
+    fontSize: 16,
+    color: '#333',
+  },
+  inputDark: {
+    backgroundColor: '#333',
+    color: '#fff',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#333',
+  },
+});
+
+export default ShoppingModeScreen;

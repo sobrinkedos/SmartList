@@ -362,4 +362,49 @@ const ProductDetailScreen = ({ route, navigation }) => {
               />
               
               <View style={styles.unitSelector}>
-                <Text style={[styles.fieldLabel, isDarkMode && styles.textLightSecondary]}>
+                <Text style={[styles.fieldLabel, isDarkMode && styles.textLightSecondary]}>Unidade</Text>
+                <TouchableOpacity 
+                  style={[styles.unitButton, isDarkMode && styles.unitButtonDark]}
+                  onPress={() => {
+                    // Adicionar lógica para selecionar unidade
+                  }}
+                >
+                  <Text style={isDarkMode && styles.textLight}>
+                    {units.find(unit => unit.id === product.unit)?.name || 'Selecione uma unidade'}
+                  </Text>
+                  <Icon name="chevron-down" size={20} color={isDarkMode ? '#e0e0e0' : '#666'} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+        
+        <Divider style={styles.divider} />
+        
+        {/* Botões de ação */}
+        <View style={styles.actionButtons}>
+          <Button 
+            mode="contained" 
+            onPress={handleSaveProduct}
+            style={styles.saveButton}
+            icon="content-save"
+          >
+            Salvar
+          </Button>
+          {!isNew && (
+            <Button 
+              mode="contained" 
+              onPress={handleDeleteProduct}
+              style={styles.deleteButton}
+              icon="delete"
+            >
+              Excluir
+            </Button>
+          )}
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+export default ProductDetailScreen;

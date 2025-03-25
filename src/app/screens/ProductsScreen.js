@@ -403,3 +403,45 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: '#666',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  addButton: {
+    marginTop: 20,
+  },
+  fab: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+  },
+  fabDark: {
+    backgroundColor: '#333',
+  },
+  menu: {
+    position: 'absolute',
+    right: 16,
+    bottom: 80,
+  },
+  menuDark: {
+    backgroundColor: '#333',
+  },
+  textLight: {
+    color: '#fff',
+  },
+  textLightSecondary: {
+    color: '#e0e0e0',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 80,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 20,
+  },
+});
+
+export default ProductsScreen;

@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from './async-storage-mock';
 import { getFirestore, syncDataWithFirestore } from './firebase';
 import * as SQLite from 'expo-sqlite';
 import { v4 as uuidv4 } from 'uuid';
@@ -426,4 +426,11 @@ export const ProductService = {
             });
           },
           (_, error) => {
-            console.error('
+            console.error('Erro ao adicionar registro de preço:', error);
+            reject({ success: false, error: error.message });
+          }
+        );
+      });
+    });
+  },
+};

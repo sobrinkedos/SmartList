@@ -351,4 +351,253 @@ const BudgetScreen = ({ navigation }) => {
               <Text style={[styles.summaryValue, isDarkMode && styles.textLight]}>R$ {totals.total.toFixed(2)}</Text>
             </View>
             
-            <View style={styles.summaryItem}
+            <View style={styles.summaryItem}>
+              <Text style={[styles.summaryLabel, isDarkMode && styles.textLightSecondary]}>Gasto Total</Text>
+              <Text style={[styles.summaryValue, isDarkMode && styles.textLight]}>R$ {totals.spent.toFixed(2)}</Text>
+            </View>
+            
+            <View style={styles.summaryItem}>
+              <Text style={[styles.summaryLabel, isDarkMode && styles.textLightSecondary]}>Restante</Text>
+              <Text style={[styles.summaryValue, isDarkMode && styles.textLight]}>R$ {totals.remaining.toFixed(2)}</Text>
+            </View>
+            
+            <View style={styles.summaryItem}>
+              <Text style={[styles.summaryLabel, isDarkMode && styles.textLightSecondary]}>Percentual Utilizado</Text>
+              <Text style={[styles.summaryValue, isDarkMode && styles.textLight]}>{totals.percentage}%</Text>
+            </View>
+          </View>
+        </Card.Content>
+      </Card>
+      
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <Text style={[styles.loadingText, isDarkMode && styles.textLight]}>Carregando...</Text>
+        </View>
+      ) : (
+        <ScrollView style={styles.budgetsContainer}>
+          {getFilteredBudgets().map(budget => renderBudgetItem(budget))}
+        </ScrollView>
+      )}
+      
+      <Portal>
+        <Dialog visible={showAddDialog} onDismiss={() => setShowAddDialog(false)}>
+          <Dialog.Title style={[styles.dialogTitle, isDarkMode && styles.textLight]}>Adicionar Orçamento</Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              label="Nome do Orçamento"
+              value={budgetName}
+              onChangeText={text => setBudgetName(text)}
+              style={[styles.textInput, isDarkMode && styles.textInputDark]}
+            />
+            <TextInput
+              label="Valor do Orçamento"
+              value={budgetAmount}
+              onChangeText={text => setBudgetAmount(text)}
+              style={[styles.textInput, isDarkMode && styles.textInputDark]}
+              keyboardType="numeric"
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setShowAddDialog(false)}>Cancelar</Button>
+            <Button onPress={editingBudget ? handleUpdateBudget : handleAddBudget}>Salvar</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+      
+      <FAB
+        icon="plus"
+        style={[styles.fab, isDarkMode && styles.fabDark]}
+        onPress={() => setShowAddDialog(true)}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F7F7F7',
+  },
+  containerDark: {
+    backgroundColor: '#333',
+  },
+  monthSelector: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#CCC',
+  },
+  monthYear: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  summaryCard: {
+    margin: 16,
+  },
+  cardDark: {
+    backgroundColor: '#444',
+  },
+  summaryTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  summaryInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  summaryItem: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  summaryLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  summaryValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  budgetsContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  budgetCard: {
+    marginBottom: 16,
+  },
+  budgetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  budgetActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  budgetInfo: {
+    padding: 16,
+  },
+  budgetAmounts: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  amountItem: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  amountLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  amountValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  progressContainer: {
+    padding: 16,
+  },
+  progressBar: {
+    height: 10,
+    borderRadius: 10,
+  },
+  progressText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+  },
+  categoriesContainer: {
+    padding: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  chartContainer: {
+    height: 200,
+  },
+  categoryItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#CCC',
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  categoryNameContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  categoryColor: {
+    width: 10,
+    height: 10,
+    borderRadius: 10,
+    marginRight: 8,
+  },
+  categoryName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  categoryAmount: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  categoryProgress: {
+    height: 10,
+    borderRadius: 10,
+  },
+  detailButton: {
+    marginTop: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 18,
+  },
+  dialogTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  textInput: {
+    height: 40,
+    borderColor: '#CCC',
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginBottom: 16,
+  },
+  textInputDark: {
+    backgroundColor: '#444',
+    borderColor: '#555',
+    color: '#FFF',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+  },
+  fabDark: {
+    backgroundColor: '#666',
+  },
+  textLight: {
+    color: '#FFF',
+  },
+  textLightSecondary: {
+    color: '#CCC',
+  },
+});
+
+export default BudgetScreen;
