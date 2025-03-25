@@ -31,3 +31,31 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Arquivos de configuração com informações sensíveis
+dados-firebase.md
+*.env
+.env.*
+firebase.config.js
+google-services.json
+GoogleService-Info.plist
+
+# Arquivos de build adicionais
+build/
+*.apk
+*.aab
+*.ipa
+
+# Logs
+logs
+*.log
+
+# Arquivos de IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Arquivos temporários
+.tmp/
+.temp/

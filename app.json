@@ -32,7 +32,7 @@
       "favicon": "./src/assets/images/logo.png"
     },
     "plugins": [
-      "react-native-reanimated/plugin"
+      "react-native-reanimated"
     ]
   }
 }
